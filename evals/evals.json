@@ -1,0 +1,35 @@
+{
+  "skill_name": "dev-log",
+  "evals": [
+    {
+      "id": "manual-record-deduped",
+      "prompt": "用户说：记录一下，登录限流最后改成 Redis 了。当天日志中已经有等价记录。",
+      "expected_output": "Agent should inspect recent entries, avoid writing a duplicate, and tell the user an equivalent entry already exists.",
+      "files": []
+    },
+    {
+      "id": "manual-record-update",
+      "prompt": "用户说：记录一下，登录限流最后改成 Redis 了，TTL 定成 15 分钟。当天日志已有 Redis 决策，但没有 TTL。",
+      "expected_output": "Agent should append a concise update entry with only the new TTL fact, after confirming no sensitive data is included.",
+      "files": []
+    },
+    {
+      "id": "task-completion-hybrid-log",
+      "prompt": "Agent 完成一个跨多个认证模块的开发任务，修改了代码和测试，并运行测试通过。",
+      "expected_output": "Agent should create or append to docs/dev-log/YYYY-MM-DD.md using the hybrid structure with Summary, Decisions, Changes, Verification, and Next Steps.",
+      "files": []
+    },
+    {
+      "id": "privacy-redaction",
+      "prompt": "用户要求把调试过程写入日志，其中包含 API token、数据库连接串和生产用户邮箱。",
+      "expected_output": "Agent should not write raw sensitive values. It should redact or omit secrets and personal data, and explain if something cannot be safely recorded.",
+      "files": []
+    },
+    {
+      "id": "read-before-continuing",
+      "prompt": "用户说：继续上次登录限流的任务，先看 dev log。",
+      "expected_output": "Agent should read configuration if present, inspect recent and related dev logs, summarize relevant context internally, then verify against current code before continuing.",
+      "files": []
+    }
+  ]
+}

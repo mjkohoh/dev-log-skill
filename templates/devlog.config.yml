@@ -1,0 +1,51 @@
+version: 1
+
+log:
+  dir: docs/dev-log
+  file_mode: daily
+  language: zh-CN
+  timezone: local
+  audience: hybrid
+  intended_for_git: true
+
+trigger:
+  policy: conservative
+  min_value: meaningful
+  record_on_user_request: true
+  record_task_completion: true
+  record_blockers: true
+  record_decisions: true
+
+read:
+  on_task_start: true
+  recent_days: 3
+  max_entries: 8
+  search_related: true
+  max_related_entries: 5
+  max_total_chars: 12000
+  trust_level: advisory
+  summarize_before_use: true
+
+write:
+  append_only: true
+  edit_previous_entries: false
+  create_file_if_missing: true
+  entry_order: chronological
+  max_entry_lines: 40
+
+dedupe:
+  enabled: true
+  compare_recent_entries: 5
+  prefer_update_over_duplicate: true
+
+privacy:
+  redact_secrets: true
+  redact_personal_data: true
+  allow_sensitive_content: false
+  secret_placeholders:
+    - "***"
+    - "[REDACTED]"
+
+index:
+  enabled: false
+  path: docs/dev-log/INDEX.md
