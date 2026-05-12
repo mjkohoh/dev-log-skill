@@ -8,6 +8,17 @@ log:
   audience: hybrid
   intended_for_git: true
 
+handoff:
+  enabled: true
+  dir: .agents/handoff
+  current_file: current.md
+  intended_for_git: false
+  overwrite_current: true
+  include_git_diff_summary: true
+  include_recent_dev_logs: true
+  create_dir_if_missing: true
+  timestamped_history: false
+
 trigger:
   policy: conservative
   min_value: meaningful

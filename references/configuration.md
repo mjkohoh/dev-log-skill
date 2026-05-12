@@ -12,6 +12,12 @@ log:
   audience: hybrid
   intended_for_git: true
 
+handoff:
+  enabled: true
+  dir: .agents/handoff
+  current_file: current.md
+  intended_for_git: false
+
 trigger:
   policy: conservative
 
@@ -59,6 +65,17 @@ write:
   entry_order: chronological
   max_entry_lines: 40
 
+handoff:
+  enabled: true
+  dir: .agents/handoff
+  current_file: current.md
+  intended_for_git: false
+  overwrite_current: true
+  include_git_diff_summary: true
+  include_recent_dev_logs: true
+  create_dir_if_missing: true
+  timestamped_history: false
+
 dedupe:
   enabled: true
   compare_recent_entries: 5
@@ -87,6 +104,18 @@ index:
 - `timezone`: 时间戳时区。`local` 表示使用当前环境时区。
 - `audience`: 日志风格。`human` 偏叙述，`agent` 偏结构化，`hybrid` 兼顾两者。
 - `intended_for_git`: 是否默认可以提交到 git。为 `true` 时必须执行严格脱敏。
+
+### `handoff`
+
+- `enabled`: 是否启用 agent 交接快照能力。
+- `dir`: 交接快照目录。默认 `.agents/handoff`。
+- `current_file`: 当前临时状态文件名。默认 `current.md`。
+- `intended_for_git`: 交接快照是否默认可以提交到 git。默认 `false`。
+- `overwrite_current`: 是否允许覆盖当前状态文件。默认 `true`。
+- `include_git_diff_summary`: 生成快照时是否包含 git diff 摘要。
+- `include_recent_dev_logs`: 生成快照时是否引用相关 dev log。
+- `create_dir_if_missing`: 目录不存在时是否创建。
+- `timestamped_history`: 是否默认写入带时间戳的历史快照。默认 `false`，只维护 `current.md`。
 
 ### `trigger`
 

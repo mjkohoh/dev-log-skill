@@ -1,6 +1,6 @@
 ---
 name: dev-log
-description: Use this skill when an AI coding agent should read or write Markdown development logs in the current repository. Trigger when the user asks to 记录日志, write a dev log, continue previous work, document decisions, blockers, verification, or preserve handoff context for Codex, Claude Code, OpenCode, and other coding agents.
+description: Use this skill when an AI coding agent should read or write Markdown development logs or temporary handoff snapshots in the current repository. Trigger when the user asks to 记录日志, write a dev log, continue previous work, switch agents, generate handoff/current state, document decisions, blockers, verification, or preserve handoff context for Codex, Claude Code, OpenCode, and other coding agents.
 ---
 
 # Dev Log Skill
@@ -22,6 +22,7 @@ description: Use this skill when an AI coding agent should read or write Markdow
 - 触发策略：`conservative`，只在关键节点自动记录
 - 写入策略：append-only，追加新条目，不静默改旧条目
 - 隐私策略：日志默认可提交到 git，禁止原样记录敏感信息
+- 交接快照：默认写入 `.agents/handoff/current.md`，临时、可覆盖、默认不提交
 
 ## 开始开发前
 
@@ -35,6 +36,8 @@ description: Use this skill when an AI coding agent should read or write Markdow
 6. 永远以当前代码和测试结果为准，日志只是参考线索。
 
 简单问答、一行小改、纯格式化任务通常不需要读取日志。
+
+当用户要求“继续上次任务”且项目存在 `.agents/handoff/current.md` 时，先读取交接快照，再按快照引用读取相关 dev log 和当前代码。交接快照是当前状态提示，不是事实来源；涉及实现细节时仍以代码、diff 和验证结果为准。
 
 ## 什么时候写日志
 
@@ -107,6 +110,59 @@ Status: in_progress | done | blocked
 
 根据实际情况省略空章节。默认单条日志控制在 20 到 40 行。
 
+## Agent 交接快照
+
+当用户明确表示要切换 agent、暂停当前任务、生成 handoff、整理当前开发状态，或让另一个 agent 接着做时，生成临时交接快照，而不是追加开发日志。
+
+默认写入：
+
+```text
+.agents/handoff/current.md
+```
+
+交接快照用于回答“当前目标是什么、已经做到哪、下一个 agent 应该从哪里继续”。它不是长期日志，默认可覆盖，默认不提交到 git。写入前应读取当前任务上下文、当前代码状态、git diff 摘要、最近相关 dev log，并只保留对接手有帮助的信息。
+
+默认结构：
+
+```md
+# Agent Handoff - 当前开发状态
+
+Updated: YYYY-MM-DD HH:mm TZ
+From Agent: Codex | Claude Code | OpenCode | Other
+Suggested Next Agent: Claude Code | Codex | OpenCode | Other | Unknown
+Status: in_progress | blocked | ready_for_next
+
+## Current Goal
+当前开发目标。
+
+## Progress
+已经完成的工作和当前进度。
+
+## Current Context
+用户要求、边界条件、重要约束。
+
+## Decisions So Far
+- 已确认的技术决策和原因。
+
+## Changed Files
+- `path/to/file`: 当前改动状态和注意点。
+
+## Verification
+- `command`: passed | failed | not run，并说明重要结果。
+
+## Open Questions
+- 尚未确认的问题。
+
+## Next Steps
+1. 下一个 agent 应该先做什么。
+2. 然后做什么。
+
+## Relevant Dev Logs
+- `docs/dev-log/YYYY-MM-DD.md`: 相关历史线索。
+```
+
+根据实际情况省略空章节。不要复制聊天全文，不要粘贴大段 diff，不要记录未经脱敏的敏感信息。写完后告诉用户交接文件路径。
+
 ## 去重、更新和纠错
 
 - 优先追加新条目，不直接改旧条目。
@@ -134,12 +190,14 @@ Status: in_progress | done | blocked
 
 如果无法安全脱敏，不要写入可提交日志，先向用户说明风险。
 
+交接快照虽然默认不提交，但仍按同样标准脱敏。除非用户明确要求并确认风险，不要把临时凭证、真实用户数据、生产原始响应或完整私密配置写入 handoff。
+
 ## 配置
 
 优先读取 `.devlog.yml`，其次读取 `docs/dev-log/config.yml`。配置缺失时使用默认值。未知字段忽略，非法字段回退默认值，不要因为配置问题阻塞开发。
 
-完整配置见 `references/configuration.md`。触发策略见 `references/trigger-policy.md`。读写规则见 `references/read-write-policy.md`。脱敏规则见 `references/privacy-redaction.md`。
+完整配置见 `references/configuration.md`。触发策略见 `references/trigger-policy.md`。读写和交接规则见 `references/read-write-policy.md`。脱敏规则见 `references/privacy-redaction.md`。
 
 ## 最终回复
 
-如果本轮写入了日志，最终回复里简短说明日志路径。如果判断无需记录，也不需要特意解释，除非用户明确要求记录但被去重或脱敏规则拦截。
+如果本轮写入了日志或交接快照，最终回复里简短说明文件路径。如果判断无需记录，也不需要特意解释，除非用户明确要求记录但被去重或脱敏规则拦截。

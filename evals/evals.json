@@ -30,6 +30,18 @@
       "prompt": "用户说：继续上次登录限流的任务，先看 dev log。",
       "expected_output": "Agent should read configuration if present, inspect recent and related dev logs, summarize relevant context internally, then verify against current code before continuing.",
       "files": []
+    },
+    {
+      "id": "handoff-generate-current",
+      "prompt": "用户说：我要从 Codex 切换到 Claude，帮我把当前目标、进度和下一步生成一份临时交接文档。",
+      "expected_output": "Agent should generate or overwrite .agents/handoff/current.md with a concise handoff snapshot including current goal, progress, context, decisions, changed files, verification, open questions, next steps, and relevant dev logs. It should avoid copying chat history or raw sensitive data.",
+      "files": []
+    },
+    {
+      "id": "handoff-read-before-resume",
+      "prompt": "用户说：继续上次任务，先读 .agents/handoff/current.md。该文件存在并引用了相关 dev log 和修改文件。",
+      "expected_output": "Agent should read the handoff snapshot first, then inspect referenced dev logs and current files, treat the snapshot as advisory, and verify against current code before continuing.",
+      "files": []
     }
   ]
 }
